@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Robot</title>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="main.css">
+    <script src="jquery.min.js"></script>
+    <script src="main.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-1">
+            </div>
+            <div class="col-10">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h4 class="my-0 font-weight-normal">Захват</h4>
+                    </div>
+                    <div class="card-body" id="bl-front">
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" ></div>
+                        </div>
+                        <div class="btn-group btn-group-lg" role="group">
+
+                            <button class="btn btn-primary " type="button">
+                                <span class="oi oi-fullscreen-enter"></span>
+                            </button>
+                            <button class="btn btn-primary" type="button">
+                                <span class="oi oi-fullscreen-exit"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-1">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-5">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h4 class="my-0 font-weight-normal">Лево</h4>
+                    </div>
+                    <div class="card-body" id="bl-left">
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%;"></div>
+                        </div>
+
+                        <div class="btn-group-vertical btn-group-lg" role="group">
+                            <button class="btn btn-primary" type="button"><span class="oi oi-arrow-thick-top"></span>
+                            </button>
+                            <button class="btn btn-primary" type="button">
+                                <span class="oi oi-arrow-thick-bottom"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-2">
+                <div id="error">
+                    <span class="oi oi-warning"></span>
+                </div>
+            </div>
+            <div class="col-5">
+
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h4 class="my-0 font-weight-normal">Право</h4>
+                    </div>
+                    <div class="card-body" id="bl-right">
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                        </div>
+
+                        <div class="btn-group-vertical btn-group-lg" role="group">
+                            <button class="btn btn-primary" type="button"><span class="oi oi-arrow-thick-top"></span>
+                            </button>
+                            <button class="btn btn-primary" type="button">
+                                <span class="oi oi-arrow-thick-bottom"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-1">
+            </div>
+            <div class="col-10">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h4 class="my-0 font-weight-normal">Поворот</h4>
+                    </div>
+                    <div class="card-body" id="bl-bottom">
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%;"></div>
+                        </div>
+
+                        <div class="btn-group btn-group-lg" role="group">
+
+                            <button class="btn btn-primary" type="button">
+                                <span class="oi oi-arrow-thick-left"></span>
+                            </button>
+                            <button class="btn btn-primary" type="button">
+                                <span class="oi oi-arrow-thick-right"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-1">
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
