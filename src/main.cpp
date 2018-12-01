@@ -1,9 +1,9 @@
-//
-// A simple server implementation showing how to:
-//  * serve static messages
-//  * read GET and POST parameters
-//  * handle missing pages / 404s
-//
+/* 
+ * 
+ * Wifi accesspoint for controlling mk1 robot arm
+ * 
+ *
+ */
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
@@ -15,6 +15,11 @@
 AsyncWebServer server(80);
 Servo bottom, right, left, front;
 
+int SRV_R = 4;
+int SRV_L = 5;
+int SRV_B = 16;
+int SRV_F = 0;
+
 const char *PARAM_POSITION = "position";
 const char *ssid = "Robot";
 const char *password = "55555555";
@@ -23,20 +28,18 @@ IPAddress local_IP(192, 168, 4, 1);
 IPAddress gateway(192, 168, 4, 1);
 IPAddress subnet(255, 255, 255, 0);
 
+// Configures soft access point
 void setupNetwork()
 {
-    Serial.print("Setting WiFi...");
-    // WiFi.begin(ssid, password);
-    // Serial.print("Address: ");
-    // Serial.println(WiFi.localIP());
-    Serial.print("Setting soft-AP configuration ... ");
-    Serial.println(WiFi.softAPConfig(local_IP, gateway, subnet) ? "Ready" : "Failed!");
+    Serial.print("Setting soft-AP configuration... ");
+    Serial.println(WiFi.softAPConfig(local_IP, gateway, subnet) ? "ready" : "failed");
 
-    Serial.print("Setting soft-AP ... ");
-    Serial.println(WiFi.softAP(ssid, password) ? "Ready" : "Failed!");
+    Serial.print("Setting soft-AP... ");
+    Serial.println(WiFi.softAP(ssid, password) ? "ready" : "failed");
     Serial.println(WiFi.softAPIP());
 }
 
+// validates that a given string is valid integer number
 boolean isValidNumber(String str)
 {
     boolean isNum = false;
@@ -49,6 +52,7 @@ boolean isValidNumber(String str)
     return isNum;
 }
 
+// logs to serial HTTP request
 void logRequest(AsyncWebServerRequest *request)
 {
     Serial.printf("Url [%s]\n", request->url().c_str());
@@ -60,6 +64,7 @@ void logRequest(AsyncWebServerRequest *request)
     Serial.print("--------------------------------------------\n");
 }
 
+// validates parameter for servo positioning
 int validateAndGetNewPosition(AsyncWebServerRequest *request)
 {
     if (!request->hasParam(PARAM_POSITION))
@@ -75,6 +80,28 @@ int validateAndGetNewPosition(AsyncWebServerRequest *request)
     return position;
 }
 
+// hanlder for requests for moving specified servo
+void servoMoveHandler(AsyncWebServerRequest *request, Servo *servo)
+{
+    logRequest(request);
+    int position;
+    if ((position = validateAndGetNewPosition(request)) == -1)
+    {
+        request->send(400, "text/plain", "Missing or invalid parameters 'position'");
+        return;
+    }
+    servo->write(position);
+    request->send(200, "text/plain", "OK");
+}
+
+// hanlder for requests for getting servo position
+void servoReadHandler(AsyncWebServerRequest *request, Servo *servo)
+{
+    logRequest(request);
+    request->send(200, "text/plain", String(servo->read()));
+}
+
+// setup endpoint routes for web server
 void setupServer()
 {
     server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
@@ -85,80 +112,42 @@ void setupServer()
     });
 
     server.on("/right", HTTP_POST, [](AsyncWebServerRequest *request) {
-        logRequest(request);
-        int position;
-        if ((position = validateAndGetNewPosition(request)) == -1)
-        {
-            request->send(400, "text/plain", "Missing or invalid parameters 'position'");
-            return;
-        }
-
-        right.write(position);
-        request->send(200, "text/plain", "OK");
+        servoMoveHandler(request, &right);
     });
     server.on("/left", HTTP_POST, [](AsyncWebServerRequest *request) {
-        logRequest(request);
-        int position;
-        if ((position = validateAndGetNewPosition(request)) == -1)
-        {
-            request->send(400, "text/plain", "Missing or invalid parameters 'position'");
-            return;
-        }
-
-        left.write(position);
-        request->send(200, "text/plain", "OK");
+        servoMoveHandler(request, &left);
     });
     server.on("/front", HTTP_POST, [](AsyncWebServerRequest *request) {
-        logRequest(request);
-        int position;
-        if ((position = validateAndGetNewPosition(request)) == -1)
-        {
-            request->send(400, "text/plain", "Missing or invalid parameters 'position'");
-            return;
-        }
-
-        front.write(position);
-        request->send(200, "text/plain", "OK");
+        servoMoveHandler(request, &front);
     });
     server.on("/bottom", HTTP_POST, [](AsyncWebServerRequest *request) {
-        logRequest(request);
-        int position;
-        if ((position = validateAndGetNewPosition(request)) == -1)
-        {
-            request->send(400, "text/plain", "Missing or invalid parameters 'position'");
-            return;
-        }
-
-        bottom.write(position);
-        request->send(200, "text/plain", "OK");
+        servoMoveHandler(request, &bottom);
     });
     server.on("/right", HTTP_GET, [](AsyncWebServerRequest *request) {
-        logRequest(request);
-        request->send(200, "text/plain", String(right.read()));
+        servoReadHandler(request, &right);
     });
     server.on("/left", HTTP_GET, [](AsyncWebServerRequest *request) {
-        logRequest(request);
-        request->send(200, "text/plain", String(left.read()));
+        servoReadHandler(request, &left);
     });
     server.on("/bottom", HTTP_GET, [](AsyncWebServerRequest *request) {
-        logRequest(request);
-        request->send(200, "text/plain", String(bottom.read()));
+        servoReadHandler(request, &bottom);
     });
     server.on("/front", HTTP_GET, [](AsyncWebServerRequest *request) {
-        logRequest(request);
-        request->send(200, "text/plain", String(front.read()));
+        servoReadHandler(request, &front);
     });
     server.begin();
 }
 
+// setup servos
 void setupServos()
 {
-    bottom.attach(16);
-    right.attach(4);
-
-    left.attach(5);
+    bottom.attach(SRV_B);
+    right.attach(SRV_R);
+    left.attach(SRV_L);
+    front.attach(SRV_F);
+    
+    // adjust inital positioning of servos
     left.write(113);
-
     front.attach(0);
     front.write(115);
 }
@@ -176,6 +165,6 @@ void setup()
 
 void loop()
 {
-    Serial.printf("Stations connected to soft-AP = %d\n", WiFi.softAPgetStationNum());
+    Serial.printf("Clients connected [%d]\n", WiFi.softAPgetStationNum());
     delay(5000);
 }
